@@ -1,10 +1,12 @@
-/* ==============================================
-   ==            Landing Zone Main             ==
+/* 
+   ==============================================
+   ==          Landing Zone - Main             ==
    == Example Terraform Code for Landing Zone  ==
    ==============================================
-
-              Author: Ruan Mentz
-               Date: 2025-07-08  
+   ==            Version: 1.0.0                ==
+   ==           Author: Ruan Mentz             ==
+   ==            Date: 2025-07-08              ==
+   ==============================================
 */
 
 # Standard provider block using pref. config.
@@ -44,7 +46,7 @@ data "azurerm_client_config" "management" {
     provider = azurerm.management
 }
 
-module "FOUNDATION" {
+module "cloudspaces-foundation" {
     # source can also be from git repo. eg. source = "git::https://...yoursource.git/"
     source = "../foundation/"
 
@@ -80,7 +82,9 @@ module "FOUNDATION" {
             parent_management_group_id = "mdc"
             subscription_ids           = [
                 "SUBSCRIPTION ID 1", # SUBSCRIPTION ID1 NAME
-                "SUBSCRIPTION ID 2"  # SUBSCRIPTION ID2 NAME
+                "SUBSCRIPTION ID 2", # SUBSCRIPTION ID2 NAME
+                "SUBSCRIPTION ID 3", # SUBSCRIPTION ID3 NAME
+                "SUBSCRIPTION ID 4"  # SUBSCRIPTION ID4 NAME
             ]
             archetype_config = {
                 "archetype_id"   = "high_secure"
@@ -95,7 +99,9 @@ module "FOUNDATION" {
             parent_management_group_id = "mdc"
             subscription_ids           = [
                 "SUBSCRIPTION ID 1", # SUBSCRIPTION ID1 NAME
-                "SUBSCRIPTION ID 2"  # SUBSCRIPTION ID2 NAME
+                "SUBSCRIPTION ID 2", # SUBSCRIPTION ID2 NAME
+                "SUBSCRIPTION ID 3", # SUBSCRIPTION ID3 NAME
+                "SUBSCRIPTION ID 4"  # SUBSCRIPTION ID4 NAME
             ]
             archetype_config = {
                 "archetype_id"   = "high_secure"
@@ -138,7 +144,10 @@ module "FOUNDATION" {
         #     parent_management_group_id = "mdc"
         #     subscription_ids           = [
         #         "SUBSCRIPTION ID 1", # SUBSCRIPTION ID1 NAME
-        #         "SUBSCRIPTION ID 2"  # SUBSCRIPTION ID2 NAME
+        #         "SUBSCRIPTION ID 2", # SUBSCRIPTION ID2 NAME
+        #         "SUBSCRIPTION ID 3", # SUBSCRIPTION ID3 NAME
+        #         "SUBSCRIPTION ID 4"  # SUBSCRIPTION ID4 NAME
+        #
         #     ]
         #     archetype_config = {
         #         "archetype_id"   = "high_secure_not_enforced"
