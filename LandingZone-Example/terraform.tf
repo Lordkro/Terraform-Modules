@@ -16,7 +16,6 @@ provider "azurerm" {
     }
 }
 
-
 # Provider lists for "producation" and "non-production" subscriptions. 
 # Same as listed in the main.tf file
 # Example given below

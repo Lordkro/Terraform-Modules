@@ -3,7 +3,7 @@
    ==          Landing Zone - Main             ==
    == Example Terraform Code for Landing Zone  ==
    ==============================================
-   ==            Version: 1.0.0                ==
+   ==             Version: 1.0.0               ==
    ==           Author: Ruan Mentz             ==
    ==            Date: 2025-07-08              ==
    ==============================================
@@ -47,7 +47,7 @@ data "azurerm_client_config" "management" {
 }
 
 module "cloudspaces-foundation" {
-    # source can also be from git repo. eg. source = "git::https://...yoursource.git/"
+    # source can also be from git repo. eg. source = "git::https://...yoursource.git/..."
     source = "../foundation/"
 
     # File where extensions are copied to.
@@ -55,6 +55,11 @@ module "cloudspaces-foundation" {
 
     # File where extensions are copied from.
     custom_library_extension_path = "./lib"
+
+    # TO ADD SUBSCRIPTION TO A MANAGEMENT GROUP THE SERVICE PRINCIPAL MUST HAVE:
+    # CONTRIBUTOR AND USER ACCESS ADMINISTRATOR ROLES ON SUBSCRIPTION LEVEL
+    # TO GIVE IT THOSE PERMSSIONS IT REQUIRES GLOBAL ADMIN + ELEVATED PERMISSIONS
+    # https://learn.microsoft.com/en-us/azure/role-based-access-control/elevate-access-global-admin
 
     # Section for Policy Overrides
     securePolicy_parameterOverrides = {
@@ -219,23 +224,23 @@ resource "azurerm_consumption_budget_subscription" "budget" {
 # (Maybe set policy that checks this in the future to be in remediation mode)
 # Example given below:
 
-# resource "azurerm_security_center_subscription_pricing" "dfcconprd" {
-#     tier          = "Standard"
-#     for_each      = local.defender_for_cloud_plans # settings.generic file item
-#     resource_type = each.key
-#     subplan       = each.value.subplan
+resource "azurerm_security_center_subscription_pricing" "dfcconprd" {
+    tier          = "Standard"
+    for_each      = local.defender_for_cloud_plans # settings.generic file item
+    resource_type = each.key
+    subplan       = each.value.subplan
 
-#     dynamic "extension" {
-#         for_each = each.value.extensions
-#         content {
-#             name = extension.value.name
-#             additional_extension_properties = extension.value.additional_extension_properties
-#         }
-#     }
-#     provider = azurerm.con-prd # YOUR CON PRD SUBSCRIPTION
-# }
+    dynamic "extension" {
+        for_each = each.value.extensions
+        content {
+            name = extension.value.name
+            additional_extension_properties = extension.value.additional_extension_properties
+        }
+    }
+    provider = azurerm.con-prd # YOUR CON PRD SUBSCRIPTION
+}
 
-# resource "azurerm_security_center_auto_provisioning" "auto-provisioning-con-prd" {
-#     auto_provision = "On" 
-#     provider       = azurerm.con-prd
-# }
+resource "azurerm_security_center_auto_provisioning" "auto-provisioning-con-prd" {
+    auto_provision = "On" 
+    provider       = azurerm.con-prd
+}
