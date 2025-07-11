@@ -1,0 +1,73 @@
+{  
+    "type": "Microsoft.Authorization/policyDefinitions",
+    "name": "Block-my-IP-JIT",
+    "properties": {
+      "displayName": "Management ports of virtual machines should be protected with just-in-time network access control",
+      "policyType": "Custom",      
+      "mode": "All",
+      "description": "Possible network Just In Time (JIT) access will be monitored by Azure Security Center as recommendations",
+      "metadata": {
+        "category": "Network"
+      },
+      "policyRule": {
+      "if": {
+        "allOf": [
+          {
+            "field": "type",
+            "equals": "Microsoft.Network/networkSecurityGroups"
+          },
+          {
+            "count": {
+              "field": "Microsoft.Network/networkSecurityGroups/securityRules[*]",
+              "where": {
+                "allOf": [
+                  {
+                    "field": "Microsoft.Network/networkSecurityGroups/securityRules[*].sourceAddressPrefix",
+                    "equals": "*"
+                  },
+                  {
+                    "field": "Microsoft.Network/networkSecurityGroups/securityRules[*].access",
+                    "equals": "Allow"
+                  },
+                  {
+                    "field": "Microsoft.Network/networkSecurityGroups/securityRules[*].direction",
+                    "equals": "Inbound"
+                  },
+                  {
+                    "field": "Microsoft.Network/networkSecurityGroups/securityRules[*].name",
+                    "contains": "JITRule"
+                  },
+                  {
+                    "anyOf": [
+                      {
+                        "field": "Microsoft.Network/networkSecurityGroups/securityRules[*].destinationPortRange",
+                        "equals": "22"
+                      },
+                      {
+                        "field": "Microsoft.Network/networkSecurityGroups/securityRules[*].destinationPortRange",
+                        "equals": "3389"
+                      },
+                      {
+                        "field": "Microsoft.Network/networkSecurityGroups/securityRules[*].destinationPortRanges",
+                        "equals": "22"
+                      },
+                      {
+                        "field": "Microsoft.Network/networkSecurityGroups/securityRules[*].destinationPortRanges",
+                        "equals": "3389"
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            "greater": 0
+          }
+        ]
+      },
+      "then": {
+        "effect": "deny"
+      }
+    }
+  
+    }
+  }

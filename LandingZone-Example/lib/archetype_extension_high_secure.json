@@ -1,0 +1,13 @@
+{
+    "extend_high_secure": {
+        "policy_assignments": ["diagset-sentinel", "assign-inherit-rg-tags", "Block-my-IP-JIT"],
+        "policy_definitions": [],
+        "policy_set_definitions": [],
+        "role_definitions": [],
+        "archetype_config": {
+            "parameters": {},
+            "access_control": {}
+        }
+    }
+}
+   

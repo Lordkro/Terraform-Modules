@@ -1,0 +1,83 @@
+{
+    "type": "Microsoft.Authorization/policyDefinitions",
+    "name": "inherit-rg-tags",
+    "properties": {
+        "displayName": "Inherit tags from resource group",
+        "policyType": "Custom",
+        "mode": "Indexed",
+        "description": "Ensures that extension tags are inherited from the resource group",
+        "metadata": {
+          "category": "Tags"
+        },
+        "policyRule": {
+          "if": {
+            "anyof": [
+              {
+                "field": "tags['Owner']",
+                "notEquals": "[resourceGroup().tags['Owner']]"
+              },
+              {
+                "field": "tags['Application']",
+                "notEquals": "[resourceGroup().tags['Application']]"
+              },
+              {
+                "field": "tags['Environment']",
+                "notEquals": "[resourceGroup().tags['Environment']]"
+              },
+              {
+                "field": "tags['Costcenter']",
+                "notEquals": "[resourceGroup().tags['Costcenter']]"
+              },
+              {
+                "field": "tags['Availability']",
+                "notEquals": "[resourceGroup().tags['Availability']]"
+              },
+              {
+                "field": "tags['Business_critical']",
+                "notEquals": "[resourceGroup().tags['Business_critical']]"
+              }
+            ]
+          },
+          "then": {
+            "effect": "modify",
+            "details": {
+              "roleDefinitionIds": [
+                "/providers/microsoft.authorization/roleDefinitions/ROLE_DEFINITION_ID"
+              ],
+              "operations": [
+                {
+                  "operation": "addOrReplace",
+                  "field": "tags['Owner']",
+                  "value": "[resourceGroup().tags['Owner']]"
+                },
+                {
+                  "operation": "addOrReplace",
+                  "field": "tags['Application']",
+                  "value": "[resourceGroup().tags['Application']]"
+                },
+                {
+                  "operation": "addOrReplace",
+                  "field": "tags['Costcenter']",
+                  "value": "[resourceGroup().tags['Costcenter']]"
+                },
+                {
+                  "operation": "addOrReplace",
+                  "field": "tags['Environment']",
+                  "value": "[resourceGroup().tags['Environment']]"
+                },
+                {
+                  "operation": "addOrReplace",
+                  "field": "tags['Availability']",
+                  "value": "[resourceGroup().tags['Availability']]"
+                },
+                {
+                  "operation": "addOrReplace",
+                  "field": "tags['Business_critical']",
+                  "value": "[resourceGroup().tags['Business_critical']]"
+                }
+              ]
+            }
+          }
+        }
+    }
+}

@@ -1,0 +1,18 @@
+{
+    "name": "Block-my-IP-JIT",
+    "type": "Microsoft.Authorization/policyAssignments",
+    "apiVersion": "2021-06-01",
+    "location": "${default_location}",
+    "identity": {
+        "type": "SystemAssigned"
+    },
+    "properties": {
+        "description": "Possible network Just In Time (JIT) access will be monitored by Azure Security Center as recommendations",
+        "displayName": "Management ports of virtual machines should be protected with just-in-time network access control",
+        "notScopes": [],
+        "parameters": {},
+        "policyDefinitionId": "/providers/Microsoft.Management/managementGroups/mdc/providers/Microsoft.Authorization/policyDefinitions/Block-my-IP-JIT",
+        "scope": "${current_scope_resource_id}",
+        "enforcementMode": "null"
+    }
+}

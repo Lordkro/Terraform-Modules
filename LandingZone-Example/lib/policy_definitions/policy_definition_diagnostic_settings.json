@@ -1,0 +1,84 @@
+{  
+    "type": "Microsoft.Authorization/policyDefinitions",
+    "name": "diagnosticsettings-to-sentinel",
+    "properties": {
+      "displayName": "Configure diagnostic settings for Storage Services to Log Analytics workspace",
+      "policyType": "Custom",      
+      "mode": "All",
+      "description": "Deploys the diagnostic settings for Storage Services to stream resource logs to a Log Analytics workspace when any Service which is missing this diagnostic settings is created or updated.",
+      "metadata": {
+        "category": "Monitor"
+      },
+      "policyRule": {
+        "if": {
+          "field": "type",
+          "in": [
+            "Microsoft.Storage/storageAccounts/blobServices",
+            "Microsoft.Storage/storageAccounts/fileServices",
+            "Microsoft.Storage/storageAccounts/tableServices",
+            "Microsoft.Storage/storageAccounts/queueServices",
+            "Microsoft.KeyVault/vaults",
+            "Microsoft.Network/publicIPAddresses",
+            "Microsoft.Network/virtualnetworks", 
+            "Microsoft.Network/networksecuritygroups"
+          ]
+        },
+        "then": {
+          "effect": "DeployIfNotExists",
+          "details": {
+            "type": "Microsoft.Insights/diagnosticSettings",
+            "existenceCondition": {
+              "allOf": [
+                {
+                  "field": "Microsoft.Insights/diagnosticSettings/workspaceId",
+                  "equals": "/subscriptions/YOURSUBSCRIPTION_ID/resourceGroups/rg-ew-prd-01/providers/Microsoft.OperationalInsights/workspaces/prd-law-01"
+                }
+              ]
+            },
+            "roleDefinitionIds": [
+              "/providers/microsoft.authorization/roleDefinitions/ROLE_DEFINITION_ID"
+            ],
+            "deployment": {
+              "properties": {
+                "mode": "incremental",
+                "template": {
+                  "parameters": {
+                    "resourceId": {
+                      "type": "string"
+                    }
+                  },
+                  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+                  "contentVersion": "1.0.0.0",
+                  "variables": {},
+                  "resources": [
+                    {
+                      "type": "Microsoft.Insights/diagnosticSettings",
+                      "apiVersion": "2021-05-01-preview",
+                      "name": "send-to-sentinel",
+                      "location": "West Europe",
+                      "dependsOn": [],
+                      "properties": {
+                        "workspaceId": "/subscriptions/YOURSUBSCRIPTION_ID/resourceGroups/rg-ew-prd-01/providers/Microsoft.OperationalInsights/workspaces/prd-law-01",
+                        "logs": [
+                          {
+                            "categoryGroup": "allLogs",
+                            "enabled": "true"
+                          }
+                        ]
+                      },
+                      "scope": "[parameters('resourceId')]"
+                    }
+                  ]
+                },
+                "parameters": {
+                  "resourceId": {
+                    "value": "[field('id')]"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }

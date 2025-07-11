@@ -1,0 +1,12 @@
+{
+    "extend_high_secure_not_enforced": {
+        "policy_assignments": ["Block-my-IP-JIT"],
+        "policy_definitions": [],
+        "policy_set_definitions": [],
+        "role_definitions": [],
+        "archetype_config": {
+            "parameters": {},
+            "access_control": {}
+        }
+    }
+}
