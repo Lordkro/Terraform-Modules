@@ -1,0 +1,68 @@
+parameters:
+
+  - name: ServicePrincipal
+    type: string
+  
+  - name: TerraformVersion
+    type: string
+  
+  - name: WorkingDirectory
+    type: string
+  
+  - name: PlanOutputArtifact
+    type: string
+
+steps:
+  - task: ms-devlabs.custom-terraform-tasks.custom-terraform-installer-task.TerraformInstaller@0
+    displayName: Terraform Install
+    condition: always()
+    inputs:
+      terraformVersion: ${{ parameters.TerraformVersion }}
+  
+  - checkout: foundation
+  - checkout: self
+    clean: true
+  
+  - task: AzureCLI@2
+    inputs:
+      azureSubscription: ${{ parameters.ServicePrincipal }}
+      scriptType: 'pscore'
+      scriptLocation: 'inlineScript'
+      inlineScript: |
+        az login --service-principal -u "$env:servicePrincipalId" -p "$env:servicePrincipalKey" --tenant "$env:tenantId"
+        $env:ARM_CLIENT_ID="$env:servicePrincipalId"
+        $env:ARM_CLIENT_SECRET="$env:servicePrincipalKey"
+        $env:ARM_TENANT_ID="$env:tenantId"
+        $env:ARM_SUBSCRIPTION_ID="$(az account show --query id --output tsv)"
+        terraform init
+
+        ls lib
+
+        cp lib/* ../cloudspaces.foundation/lib/ -r -Force
+
+        ls lib
+
+        ls ../cloudspaces.foundation/lib/
+      
+      workingDirectory: ${{ parameters.WorkingDirectory }}
+      addSpnToEnvironment: true
+  
+  - task: TerraformTaskV2@2
+    displayName: "Terraform Validate"
+    inputs:
+      provider: 'azurerm'
+      command: 'validate'
+      workingDirectory: ${{ parameters.WorkingDirectory }}
+      environmentServiceNameAzureRM: ${{ parameters.ServicePrincipal }}
+
+  - task: TerraformTaskV2@2
+    displayName: "Terraform Plan"
+    inputs:
+      provider: 'azurerm'
+      command: 'plan'
+      workingDirectory: ${{ parameters.WorkingDirectory }}
+      commandOptions: -out=tf.plan
+      environmentServiceNameAzureRM: ${{ parameters.ServicePrincipal }}
+  
+  - publish: ${{ parameters.WorkingDirectory }}/tf.plan
+    artifact: ${{ parameters.PlanOutputArtifact }}

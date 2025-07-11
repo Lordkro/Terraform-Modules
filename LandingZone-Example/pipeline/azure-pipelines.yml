@@ -1,0 +1,61 @@
+resources:
+  repositories:
+  - repository: self
+    type: git
+    name: mdc-landingzone  # Can be prefixed with client naming conventions
+
+  # Can add foundational items that are used for all clients  
+  # - repository: foundation
+  #   type: git
+  #   endpoint: Cloudspaces Foundation
+  #   name: ITC/cloudspaces.foundation
+  #   ref: refs/tags/v1.3.8
+
+    trigger:
+      branches:
+        include:
+          - master
+
+pr: none
+
+parameters:
+  - name: ServicePrincipal
+    type: string
+    default: "cicd-mgt" # Can be prefixed with client naming conventions
+
+  - name: TerraformVersion
+    type: string
+    default: "1.5.7"
+
+pool: MDCSelfHostedAgentICC
+
+jobs:
+  - job: PlanFoundation
+    steps:
+      - template: tfplan.yaml
+        parameters:
+          ServicePrincipal: ${{ parameters.ServicePrincipal }}
+          TerraformVersion: ${{ parameters.TerraformVersion }}
+          WorkingDirectory: $(System.DefaultWorkingDirectory)/mdc-landingzone # if prefix added @top, add here too
+          PlanOutputArtifact: TerraformBootstrapPlan
+
+  - job: ValidateFoundationPlan
+    dependsOn: PlanFoundation
+    condition: succeeded()
+    pool: server
+    steps:
+      - task: ManualValidation@0
+        inputs:
+          instructions: "Validate that the above plan is ok"
+          notifyUsers: ""
+          onTimeout: reject
+  
+  - job: ApplyFoundation
+    dependsOn: ValidateFoundationPlan
+    steps:
+    - template: tfapply.yaml
+      parameters:
+        ServicePrincipal: ${{ parameters.ServicePrincipal }}
+        TerraformVersion: ${{ parameters.TerraformVersion }}
+        WorkingDirectory: $(System.DefaultWorkingDirectory)/mdc-landingzone # if prefix added @top, add here too
+        PlanArtifact: TerraformBootstrapPlan
